@@ -20,15 +20,36 @@ public class BinaryOperation {
 
     );
 
+    @NotNull private static Map<Character, Operation> operationByName = Map.of(
+            '+', Operation.ADD,
+            '-', Operation.SUB,
+            '*', Operation.MUL,
+            '/', Operation.DIV,
+            '%', Operation.MOD,
+            '=', Operation.EQUAL,
+            '<', Operation.LESS,
+            '>', Operation.GREATER
+    );
+
     @NotNull private Operation operation;
+
+    public static boolean possibleOperation(char operation) {
+        return operationByName.containsKey(operation);
+    }
 
     public BinaryOperation(@NotNull Operation operation) {
         this.operation = operation;
     }
 
+    public BinaryOperation(char operation) {
+        if (possibleOperation(operation)) {
+            this.operation = operationByName.get(operation);
+        } else {
+            throw new IllegalArgumentException("Inappropriate operation");
+        }
+    }
+
     public int apply(int left, int right) {
         return functionByName.get(operation).apply(left, right);
     }
-
-
 }

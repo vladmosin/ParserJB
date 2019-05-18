@@ -2,3 +2,4 @@
 *.xml
 
 !pom.xml
+*.lst

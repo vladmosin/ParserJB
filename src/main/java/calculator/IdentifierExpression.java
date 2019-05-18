@@ -3,10 +3,10 @@ package calculator;
 import exceptions.CalculationException;
 import org.jetbrains.annotations.NotNull;
 
-public class Identifier implements Expression {
+public class IdentifierExpression implements Expression {
     @NotNull private String name;
 
-    public Identifier(@NotNull String name) {
+    public IdentifierExpression(@NotNull String name) {
         this.name = name;
     }
 

@@ -3,7 +3,7 @@ package calculator;
 import exceptions.CalculationException;
 import org.jetbrains.annotations.NotNull;
 
-public class UnaryOperationException implements Expression {
+public class UnaryOperationExpression implements Expression {
     @NotNull private Expression expression;
 
     @Override
@@ -11,7 +11,7 @@ public class UnaryOperationException implements Expression {
         return -expression.calculate();
     }
 
-    public UnaryOperationException(@NotNull Expression expression) {
+    public UnaryOperationExpression(@NotNull Expression expression) {
         this.expression = expression;
     }
 }
