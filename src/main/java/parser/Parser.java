@@ -7,9 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import static calculator.BinaryOperation.possibleOperation;
 
 public class Parser {
-    @NotNull private final String parsingString;
+    private String parsingString;
 
-    public Expression parse() throws ParsingException {
+    public Expression parse(@NotNull String stringToParse) throws ParsingException {
+        parsingString = stringToParse;
         var result = parseExpression(0);
         if (result == null) {
             throw new ParsingException("Cannot parse string");
@@ -139,9 +140,5 @@ public class Parser {
         }
 
         return null;
-    }
-
-    public Parser(@NotNull String stringToParse) {
-        parsingString = stringToParse;
     }
 }
