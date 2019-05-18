@@ -52,4 +52,12 @@ public class BinaryOperation {
     public int apply(int left, int right) {
         return functionByName.get(operation).apply(left, right);
     }
+
+    public boolean isEqual(BinaryOperation binaryOperation) {
+        if (binaryOperation == null) {
+            return false;
+        }
+
+        return binaryOperation.operation == operation;
+    }
 }

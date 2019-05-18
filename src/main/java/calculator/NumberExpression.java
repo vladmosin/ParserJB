@@ -18,4 +18,18 @@ public class NumberExpression implements Expression {
     public int calculate() throws CalculationException {
         return value;
     }
+
+    @Override
+    public boolean isEqual(Expression expression) {
+        if (expression == null) {
+            return false;
+        }
+
+        if (expression instanceof NumberExpression) {
+            var identifierExpression = (NumberExpression) expression;
+            return value == identifierExpression.value;
+        }
+
+        return false;
+    }
 }
