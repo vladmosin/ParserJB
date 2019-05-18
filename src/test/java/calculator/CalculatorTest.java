@@ -75,4 +75,10 @@ public class CalculatorTest {
         assertEquals(23, parser.parse("((6*4)+(12-13))").calculate());
         assertEquals(1, parser.parse("((181%2)=((4/3)+(187%17)))").calculate());
     }
+
+    @Test
+    public void testIfExpression() throws ParsingException, CalculationException {
+        assertEquals(23, parser.parse("[123]?(23):(1)").calculate());
+        assertEquals(11, parser.parse("[(133>121)]?((1+10)):(15)").calculate());
+    }
 }

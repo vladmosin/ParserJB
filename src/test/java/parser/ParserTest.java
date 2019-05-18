@@ -92,4 +92,12 @@ class ParserTest {
 
         assertTrue(expression.isEqual(parser.parse("(15=4)")));
     }
+
+    @Test
+    public void testParseIfExpression() throws ParsingException {
+        var expression = new IfExpression(new NumberExpression(5),
+                new NumberExpression(6), new NumberExpression(15));
+
+        assertTrue(expression.isEqual(parser.parse("[5]?(6):(15)")));
+    }
 }

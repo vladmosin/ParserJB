@@ -29,10 +29,15 @@ public class Parser {
 
     private ParsingState parseExpression(int index) {
         var binaryExpression = parseBinaryExpression(index);
+        var constantExpression = parseConstantExpression(index);
+        var ifExpression = parseIfExpression(index);
+
         if (binaryExpression != null) {
             return binaryExpression;
+        } else if (ifExpression != null) {
+            return ifExpression;
         } else {
-            return parseConstantExpression(index);
+            return constantExpression;
         }
     }
 
@@ -104,25 +109,17 @@ public class Parser {
 
         var currentIndex = index + 1;
         var leftExpression = parseExpression(currentIndex);
-        if (leftExpression == null) {
-            return null;
-        }
 
-        currentIndex += leftExpression.getNumberOfParsedSymbols();
+        currentIndex += increaseIndex(leftExpression);
         var operation = parseOperation(currentIndex);
 
-        if (operation == null) {
-            return null;
-        }
 
         currentIndex++;
         var rightExpression = parseExpression(currentIndex);
-        if (rightExpression == null) {
-            return null;
-        }
 
-        currentIndex += rightExpression.getNumberOfParsedSymbols();
-        if (symbolDifferent(currentIndex, ')')) {
+        currentIndex += increaseIndex(rightExpression);
+        if (symbolDifferent(currentIndex, ')') || rightExpression == null ||
+                leftExpression == null || operation == null) {
             return null;
         }
 
@@ -140,5 +137,61 @@ public class Parser {
         }
 
         return null;
+    }
+
+    /** If parsingState == null, then it's not important the increasing */
+    private int increaseIndex(ParsingState parsingState) {
+        if (parsingState == null) {
+            return 0;
+        } else {
+            return parsingState.getNumberOfParsedSymbols();
+        }
+    }
+
+    private ParsingState parseIfExpression(int index) {
+        if (symbolDifferent(index, '[')) {
+            return null;
+        }
+
+        var currentIndex = index + 1;
+        var caseExpression = parseExpression(currentIndex);
+        currentIndex += increaseIndex(caseExpression);
+
+        if (!isSubstring(currentIndex, "]?(")) {
+            return null;
+        }
+
+        currentIndex += 3;
+        var ifTrueExpression = parseExpression(currentIndex);
+        currentIndex += increaseIndex(ifTrueExpression);
+
+        if (!isSubstring(currentIndex, "):(")) {
+            return null;
+        }
+
+        currentIndex += 3;
+        var ifFalseExpression = parseExpression(currentIndex);
+        currentIndex += increaseIndex(ifFalseExpression);
+
+        if (symbolDifferent(currentIndex, ')')) {
+            return null;
+        }
+
+        if (caseExpression == null || ifFalseExpression == null || ifTrueExpression == null) {
+            return null;
+        }
+
+        return new ParsingState(new IfExpression(caseExpression.getExpression(), ifTrueExpression.getExpression(),
+                ifFalseExpression.getExpression()), currentIndex + 1 - index);
+    }
+
+    private boolean isSubstring(int index, @NotNull String comparingString) {
+        for (int i = 0; i < comparingString.length(); i++) {
+            if (symbolDifferent(index + i, comparingString.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
