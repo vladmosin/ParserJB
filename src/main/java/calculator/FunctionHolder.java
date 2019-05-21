@@ -12,12 +12,14 @@ public class FunctionHolder {
     @NotNull private String name;
     @NotNull private ArrayList<String> argumentList;
     @NotNull private Expression functionBody;
+    private int line;
 
     public FunctionHolder(@NotNull String name, @NotNull ArrayList<String> argumentList,
-                          @NotNull Expression functionBody) throws IllegalFunctionDeclarationException {
+                          @NotNull Expression functionBody, int line) throws IllegalFunctionDeclarationException {
         this.name = name;
         this.argumentList = argumentList;
         this.functionBody = functionBody;
+        this.line = line;
 
         if (!checkArgumentList()) {
             throw new IllegalFunctionDeclarationException("Function " + name + " has arguments with same name");
@@ -39,5 +41,9 @@ public class FunctionHolder {
     /** Returns true if there is no arguments with same name */
     private boolean checkArgumentList() {
         return (new HashSet<String>(argumentList)).size() == argumentList.size();
+    }
+
+    public int getLine() {
+        return line;
     }
 }

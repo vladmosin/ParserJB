@@ -1,6 +1,9 @@
 package calculator;
 
+import exceptions.ArgumentNumberMismatchException;
 import exceptions.CalculationException;
+import exceptions.FunctionNotFoundException;
+import exceptions.ParameterNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -11,11 +14,20 @@ public class BinaryOperationExpression implements Expression {
     @NotNull private final Expression right;
 
     @Override
-    public int calculate() throws CalculationException {
+    public int calculate() throws CalculationException, ParameterNotFoundException {
         int leftValue = left.calculate();
         int rightValue = right.calculate();
 
-        return operation.apply(leftValue, rightValue);
+        try {
+            return operation.apply(leftValue, rightValue);
+        } catch (RuntimeException e) {
+            throw  new CalculationException(toString(), -1);
+        }
+    }
+
+    @Override
+    @NotNull public String toString() {
+        return "(" + left.toString() + operation.toString() + right.toString() + ")";
     }
 
     @Override
@@ -40,7 +52,8 @@ public class BinaryOperationExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) {
+    public void link(@NotNull FunctionExecutor functionExecutor)
+            throws FunctionNotFoundException, ArgumentNumberMismatchException {
         left.link(functionExecutor);
         right.link(functionExecutor);
     }

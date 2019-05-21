@@ -2,6 +2,7 @@ package calculator;
 
 import exceptions.CalculationException;
 import exceptions.FunctionNotFoundException;
+import exceptions.ParameterNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -18,8 +19,13 @@ public class IdentifierExpression implements Expression {
     }
 
     @Override
-    public int calculate() throws CalculationException {
-        throw new CalculationException("Identifier cannot be calculated");
+    @NotNull public String toString() {
+        return name;
+    }
+
+    @Override
+    public int calculate() throws CalculationException, ParameterNotFoundException {
+        throw new ParameterNotFoundException(name, -1);
     }
 
     @Override

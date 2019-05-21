@@ -38,4 +38,8 @@ public class FunctionExecutor {
             return null;
         }
     }
+
+    public boolean containsFunctionWithName(@NotNull String name) {
+        return functionByNameAndArgs.containsKey(name);
+    }
 }

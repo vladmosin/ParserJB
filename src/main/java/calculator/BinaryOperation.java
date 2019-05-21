@@ -31,6 +31,17 @@ public class BinaryOperation {
             '>', Operation.GREATER
     );
 
+    @NotNull private static Map<Operation, String> nameByOperation = Map.of(
+            Operation.ADD, "+",
+            Operation.SUB, "-",
+            Operation.MUL, "*",
+            Operation.DIV, "/",
+            Operation.MOD, "%",
+            Operation.LESS, "<",
+            Operation.GREATER, ">",
+            Operation.EQUAL, "="
+    );
+
     @NotNull private Operation operation;
 
     public static boolean possibleOperation(char operation) {
@@ -59,5 +70,9 @@ public class BinaryOperation {
         }
 
         return binaryOperation.operation == operation;
+    }
+
+    @NotNull public String toString() {
+        return nameByOperation.get(operation);
     }
 }

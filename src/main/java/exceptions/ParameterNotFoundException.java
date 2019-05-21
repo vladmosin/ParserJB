@@ -2,11 +2,12 @@ package exceptions;
 
 import org.jetbrains.annotations.NotNull;
 
-public class FunctionNotFoundException extends Exception {
-    @NotNull private String message;
+public class ParameterNotFoundException extends Exception {
+    @NotNull
+    private String message;
     private int line;
 
-    public FunctionNotFoundException(@NotNull String message,int line) {
+    public ParameterNotFoundException(@NotNull String message,int line) {
         this.line = line;
         this.message = message;
     }

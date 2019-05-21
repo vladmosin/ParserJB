@@ -5,6 +5,7 @@ import exceptions.FunctionNotFoundException;
 import exceptions.FunctionRedefinitionException;
 import exceptions.IllegalFunctionDeclarationException;
 import exceptions.ParsingException;
+import org.intellij.lang.annotations.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class Parser {
 
     private String parsingString;
     private FunctionExecutor functionExecutor;
+    private int currentLineNumber = 1;
 
     public Expression parse(@NotNull String[] lines) throws ParsingException,
             FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException {
@@ -46,6 +48,7 @@ public class Parser {
                 throw new ParsingException("Cannot parse function definition");
             }
 
+            currentLineNumber++;
             functions.add(function);
         }
 
@@ -84,16 +87,22 @@ public class Parser {
     }
 
     private ParsingState parseExpression(int index) {
+        var functionCallExpression = parseFunctionCall(index);
         var binaryExpression = parseBinaryExpression(index);
         var constantExpression = parseConstantExpression(index);
         var ifExpression = parseIfExpression(index);
+        var identifier = parseIdentifier(index);
 
-        if (binaryExpression != null) {
+        if (functionCallExpression != null) {
+            return functionCallExpression;
+        } else if (binaryExpression != null) {
             return binaryExpression;
         } else if (ifExpression != null) {
             return ifExpression;
-        } else {
+        } else if (constantExpression != null) {
             return constantExpression;
+        } else {
+            return identifier;
         }
     }
 
@@ -269,7 +278,7 @@ public class Parser {
         if (arguments == null) {
             return null;
         }
-
+        currentIndex += arguments.numberOfParsedSymbols;
         if (!isSubstring(currentIndex, "={")) {
             return null;
         }
@@ -286,7 +295,7 @@ public class Parser {
         }
 
         return new FunctionHolder(((IdentifierExpression)identifier.getExpression()).getName(),
-                arguments.arguments, expression.getExpression());
+                arguments.arguments, expression.getExpression(), currentLineNumber);
     }
 
     private Parameters parseParameters(int index) {
@@ -297,15 +306,11 @@ public class Parser {
                 return new Parameters(arguments, currentIndex - index + 1);
             }
             var identifier = parseIdentifier(currentIndex);
-            if (identifier == null) {
-                return null;
-            }
-
-            currentIndex += identifier.getNumberOfParsedSymbols();
             currentIndex = successfullyParseArgument(currentIndex, identifier);
-            if (currentIndex == -1) {
+            if (currentIndex == -1 || identifier == null) {
                 return null;
             }
+            arguments.add(((IdentifierExpression)identifier.getExpression()).getName());
         }
         return null;
     }
@@ -344,6 +349,8 @@ public class Parser {
             if (currentIndex == -1) {
                 return null;
             }
+
+            arguments.add(expression.getExpression());
         }
         return null;
     }

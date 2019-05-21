@@ -1,7 +1,9 @@
 package calculator;
 
+import exceptions.ArgumentNumberMismatchException;
 import exceptions.CalculationException;
 import exceptions.FunctionNotFoundException;
+import exceptions.ParameterNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -10,7 +12,7 @@ public class UnaryOperationExpression implements Expression {
     @NotNull private Expression expression;
 
     @Override
-    public int calculate() throws CalculationException {
+    public int calculate() throws CalculationException, ParameterNotFoundException {
         return -expression.calculate();
     }
 
@@ -34,11 +36,17 @@ public class UnaryOperationExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+    public void link(@NotNull FunctionExecutor functionExecutor)
+            throws FunctionNotFoundException, ArgumentNumberMismatchException {
         expression.link(functionExecutor);
     }
 
     public UnaryOperationExpression(@NotNull Expression expression) {
         this.expression = expression;
+    }
+
+    @Override
+    @NotNull public String toString() {
+        return "-" + expression.toString();
     }
 }

@@ -45,4 +45,9 @@ public class NumberExpression implements Expression {
     public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
 
     }
+
+    @Override
+    @NotNull public String toString() {
+        return Integer.toString(value);
+    }
 }

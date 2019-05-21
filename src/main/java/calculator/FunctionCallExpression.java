@@ -1,7 +1,9 @@
 package calculator;
 
+import exceptions.ArgumentNumberMismatchException;
 import exceptions.CalculationException;
 import exceptions.FunctionNotFoundException;
+import exceptions.ParameterNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,14 +20,48 @@ public class FunctionCallExpression implements Expression {
         this.name = name;
     }
 
-    @Override
-    public int calculate() throws CalculationException {
-        var argumentValues = new ArrayList<Integer>();
-        for (int i = 0; i < arguments.size(); i++) {
-            argumentValues.add(arguments.get(i).calculate());
-        }
+    private FunctionCallExpression(@NotNull String name, @NotNull ArrayList<Expression> arguments,
+                                   @NotNull FunctionHolder function) {
+        this.arguments = arguments;
+        this.name = name;
+        this.function = function;
+    }
 
-        return function.getFunctionBody().applySubstitution(createSubstitution(argumentValues)).calculate();
+    @Override
+    @NotNull public String toString() {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.append(name);
+        stringBuilder.append("(");
+        for (int i = 0; i < arguments.size(); i++) {
+            stringBuilder.append(arguments.get(i).toString());
+            if (i != arguments.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append(")");
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public int calculate() throws CalculationException, ParameterNotFoundException {
+        var argumentValues = new ArrayList<Integer>();
+        try {
+            for (Expression argument : arguments) {
+                argumentValues.add(argument.calculate());
+            }
+
+            return function.getFunctionBody().applySubstitution(createSubstitution(argumentValues)).calculate();
+        } catch (CalculationException e) {
+            if (e.getLine() == -1) {
+                e.changeLine(function.getLine());
+            }
+            throw e;
+        } catch (ParameterNotFoundException e) {
+            if (e.getLine() == -1) {
+                e.changeLine(function.getLine());
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -44,27 +80,43 @@ public class FunctionCallExpression implements Expression {
 
     @Override
     public @NotNull Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
-        var newSubstitution = new HashMap<String, Integer>();
+        var argumentsWithSubstitution = new ArrayList<Expression>();
 
-        for (var mapEntry : substitution.entrySet()) {
-            if (!containsArgument(mapEntry.getKey())) {
-                newSubstitution.put(mapEntry.getKey(), mapEntry.getValue());
-            }
+        for (Expression argument : arguments) {
+            argumentsWithSubstitution.add(argument.applySubstitution(substitution));
         }
 
-        return function.getFunctionBody().applySubstitution(newSubstitution);
+        return new FunctionCallExpression(name, argumentsWithSubstitution, function);
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+    public void link(@NotNull FunctionExecutor functionExecutor)
+            throws FunctionNotFoundException, ArgumentNumberMismatchException {
         var function = functionExecutor.getFunction(name, arguments.size());
         if (function == null) {
-            throw new FunctionNotFoundException("Function was not found");
+            if (!functionExecutor.containsFunctionWithName(name)) {
+                throw new FunctionNotFoundException(name, -1);
+            } else {
+                throw new ArgumentNumberMismatchException(name, -1);
+            }
         }
 
         this.function = function;
-        for (var argument : arguments) {
-            argument.link(functionExecutor);
+
+        try {
+            for (var argument : arguments) {
+                argument.link(functionExecutor);
+            }
+        } catch (FunctionNotFoundException e) {
+            if (e.getLine() == -1) {
+                e.changeLine(function.getLine());
+                throw e;
+            }
+        } catch (ArgumentNumberMismatchException e) {
+            if (e.getLine() == -1) {
+                e.changeLine(function.getLine());
+                throw e;
+            }
         }
     }
 

@@ -7,6 +7,8 @@ import exceptions.IllegalFunctionDeclarationException;
 import exceptions.ParsingException;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserTest {
@@ -110,14 +112,6 @@ class ParserTest {
     @Test
     public void testParseIfExpression() throws ParsingException, IllegalFunctionDeclarationException,
             FunctionRedefinitionException, FunctionNotFoundException {
-        var expression = new IfExpression(new NumberExpression(5),
-                new NumberExpression(6), new NumberExpression(15));
-
-        assertTrue(expression.isEqual(parser.parse("[5]?(6):(15)")));
-    }
-
-    @Test
-    public void testParseFunctionalExpressions() throws ParsingException, IllegalFunctionDeclarationException, FunctionRedefinitionException, FunctionNotFoundException {
         var expression = new IfExpression(new NumberExpression(5),
                 new NumberExpression(6), new NumberExpression(15));
 

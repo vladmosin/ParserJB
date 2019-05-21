@@ -1,7 +1,9 @@
 package calculator;
 
+import exceptions.ArgumentNumberMismatchException;
 import exceptions.CalculationException;
 import exceptions.FunctionNotFoundException;
+import exceptions.ParameterNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -13,7 +15,7 @@ public class IfExpression implements Expression {
 
 
     @Override
-    public int calculate() throws CalculationException {
+    public int calculate() throws CalculationException, ParameterNotFoundException {
         if (caseExpression.calculate() != 0) {
             return ifTrueExpression.calculate();
         } else {
@@ -38,13 +40,26 @@ public class IfExpression implements Expression {
     }
 
     @Override
+    @NotNull public String toString() {
+
+        return "[" +
+                caseExpression.toString() +
+                "]?(" +
+                ifTrueExpression.toString() +
+                "):(" +
+                ifFalseExpression +
+                ")";
+    }
+
+    @Override
     public @NotNull Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
         return new IfExpression(caseExpression.applySubstitution(substitution),
                 ifTrueExpression.applySubstitution(substitution), ifFalseExpression.applySubstitution(substitution));
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+    public void link(@NotNull FunctionExecutor functionExecutor)
+            throws FunctionNotFoundException, ArgumentNumberMismatchException {
         caseExpression.link(functionExecutor);
         ifTrueExpression.link(functionExecutor);
         ifFalseExpression.link(functionExecutor);
