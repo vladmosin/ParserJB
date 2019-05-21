@@ -1,7 +1,10 @@
 package calculator;
 
 import exceptions.CalculationException;
+import exceptions.FunctionNotFoundException;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class IfExpression implements Expression {
     @NotNull private final Expression caseExpression;
@@ -32,6 +35,19 @@ public class IfExpression implements Expression {
         }
 
         return false;
+    }
+
+    @Override
+    public @NotNull Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
+        return new IfExpression(caseExpression.applySubstitution(substitution),
+                ifTrueExpression.applySubstitution(substitution), ifFalseExpression.applySubstitution(substitution));
+    }
+
+    @Override
+    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+        caseExpression.link(functionExecutor);
+        ifTrueExpression.link(functionExecutor);
+        ifFalseExpression.link(functionExecutor);
     }
 
     public IfExpression(@NotNull Expression caseExpression, @NotNull Expression ifTrueExpression,

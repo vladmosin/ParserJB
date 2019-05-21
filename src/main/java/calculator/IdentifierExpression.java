@@ -1,7 +1,10 @@
 package calculator;
 
 import exceptions.CalculationException;
+import exceptions.FunctionNotFoundException;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class IdentifierExpression implements Expression {
     @NotNull private String name;
@@ -31,5 +34,19 @@ public class IdentifierExpression implements Expression {
         }
 
         return false;
+    }
+
+    @Override
+    public @NotNull Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
+        if (substitution.containsKey(name)) {
+            return new NumberExpression(substitution.get(name));
+        } else {
+            return this;
+        }
+    }
+
+    @Override
+    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+
     }
 }

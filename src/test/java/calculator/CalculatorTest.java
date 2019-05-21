@@ -80,5 +80,6 @@ public class CalculatorTest {
     public void testIfExpression() throws ParsingException, CalculationException {
         assertEquals(23, parser.parse("[123]?(23):(1)").calculate());
         assertEquals(11, parser.parse("[(133>121)]?((1+10)):(15)").calculate());
+        assertEquals(0, parser.parse("[((10+20)>(20+10))]?(1):(0)").calculate());
     }
 }

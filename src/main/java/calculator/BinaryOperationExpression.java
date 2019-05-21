@@ -3,6 +3,8 @@ package calculator;
 import exceptions.CalculationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class BinaryOperationExpression implements Expression {
     @NotNull private final BinaryOperation operation;
     @NotNull private final Expression left;
@@ -29,6 +31,18 @@ public class BinaryOperationExpression implements Expression {
         }
 
         return false;
+    }
+
+    @Override
+    @NotNull public Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
+        return new BinaryOperationExpression(operation, left.applySubstitution(substitution),
+                right.applySubstitution(substitution));
+    }
+
+    @Override
+    public void link(@NotNull FunctionExecutor functionExecutor) {
+        left.link(functionExecutor);
+        right.link(functionExecutor);
     }
 
     public BinaryOperationExpression(@NotNull BinaryOperation operation,

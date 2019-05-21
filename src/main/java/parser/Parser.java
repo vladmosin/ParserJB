@@ -1,16 +1,72 @@
 package parser;
 
 import calculator.*;
+import exceptions.FunctionNotFoundException;
+import exceptions.FunctionRedefinitionException;
+import exceptions.IllegalFunctionDeclarationException;
 import exceptions.ParsingException;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 import static calculator.BinaryOperation.possibleOperation;
 
 public class Parser {
-    private String parsingString;
+    private static class Parameters {
+        @NotNull ArrayList<String> arguments;
+        int numberOfParsedSymbols;
 
-    public Expression parse(@NotNull String stringToParse) throws ParsingException {
-        parsingString = stringToParse;
+        private Parameters(@NotNull ArrayList<String> arguments, int numberOfParsedSymbols) {
+            this.arguments = arguments;
+            this.numberOfParsedSymbols = numberOfParsedSymbols;
+        }
+    }
+
+    private static class Arguments {
+        @NotNull ArrayList<Expression> arguments;
+        int numberOfParsedSymbols;
+
+        private Arguments(@NotNull ArrayList<Expression> arguments, int numberOfParsedSymbols) {
+            this.arguments = arguments;
+            this.numberOfParsedSymbols = numberOfParsedSymbols;
+        }
+    }
+
+    private String parsingString;
+    private FunctionExecutor functionExecutor;
+
+    public Expression parse(@NotNull String[] lines) throws ParsingException,
+            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException {
+        var functions = new ArrayList<FunctionHolder>();
+        for (int i = 0; i < lines.length - 1; i++) {
+            parsingString = lines[i];
+
+            var function = parseFunctionDefinition();
+            if (function == null) {
+                throw new ParsingException("Cannot parse function definition");
+            }
+
+            functions.add(function);
+        }
+
+        functionExecutor = new FunctionExecutor(functions);
+        parsingString = lines[lines.length - 1];
+
+        var expression = parseLastString();
+        for (var function : functions) {
+            function.getFunctionBody().link(functionExecutor);
+        }
+        expression.link(functionExecutor);
+
+        return expression;
+    }
+
+    public Expression parse(@NotNull String stringToParse) throws ParsingException,
+            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException {
+        return parse(stringToParse.split("\n"));
+    }
+
+    private Expression parseLastString() throws ParsingException {
         var result = parseExpression(0);
         if (result == null) {
             throw new ParsingException("Cannot parse string");
@@ -46,6 +102,10 @@ public class Parser {
     private ParsingState parseNumber(int index) {
         if (index >= parsingString.length()) {
             return null;
+        }
+
+        if (parsingString.charAt(index) == '0') {
+            return new ParsingState(new NumberExpression(0), 1);
         }
 
         if (parsingString.charAt(index) > '9' || parsingString.charAt(index) <'1') {
@@ -193,5 +253,121 @@ public class Parser {
         }
 
         return true;
+    }
+
+    private FunctionHolder parseFunctionDefinition() throws IllegalFunctionDeclarationException {
+        int currentIndex = 0;
+        var identifier = parseIdentifier(currentIndex);
+
+        currentIndex += increaseIndex(identifier);
+        if (!isSubstring(currentIndex, "(")) {
+            return null;
+        }
+
+        currentIndex += 1;
+        var arguments = parseParameters(currentIndex);
+        if (arguments == null) {
+            return null;
+        }
+
+        if (!isSubstring(currentIndex, "={")) {
+            return null;
+        }
+
+        currentIndex += 2;
+        var expression = parseExpression(currentIndex);
+        currentIndex += increaseIndex(expression);
+        if (!isSubstring(currentIndex, "}") || parsingString.length() != currentIndex + 1) {
+            return null;
+        }
+
+        if (expression == null || identifier == null) {
+            return null;
+        }
+
+        return new FunctionHolder(((IdentifierExpression)identifier.getExpression()).getName(),
+                arguments.arguments, expression.getExpression());
+    }
+
+    private Parameters parseParameters(int index) {
+        int currentIndex = index;
+        var arguments = new ArrayList<String>();
+        while (currentIndex < parsingString.length()) {
+            if (parsingString.charAt(currentIndex) == ')') {
+                return new Parameters(arguments, currentIndex - index + 1);
+            }
+            var identifier = parseIdentifier(currentIndex);
+            if (identifier == null) {
+                return null;
+            }
+
+            currentIndex += identifier.getNumberOfParsedSymbols();
+            currentIndex = successfullyParseArgument(currentIndex, identifier);
+            if (currentIndex == -1) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private ParsingState parseFunctionCall(int index) {
+        int currentIndex = index;
+        var identifier = parseIdentifier(index);
+
+        currentIndex += increaseIndex(identifier);
+        if (!isSubstring(currentIndex, "(")) {
+            return null;
+        }
+
+        currentIndex++;
+        var arguments = parseArguments(currentIndex);
+
+        if (arguments == null || identifier == null) {
+            return null;
+        }
+
+        currentIndex += arguments.numberOfParsedSymbols;
+        var name = ((IdentifierExpression)identifier.getExpression()).getName();
+        return new ParsingState(new FunctionCallExpression(name, arguments.arguments),
+                currentIndex - index);
+    }
+
+    private Arguments parseArguments(int index) {
+        int currentIndex = index;
+        var arguments = new ArrayList<Expression>();
+        while (currentIndex < parsingString.length()) {
+            if (parsingString.charAt(currentIndex) == ')') {
+                return new Arguments(arguments, currentIndex - index + 1);
+            }
+            var expression = parseExpression(currentIndex);
+            currentIndex = successfullyParseArgument(currentIndex, expression);
+            if (currentIndex == -1) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Returns new index in string or -1 if mistake appears */
+    private int successfullyParseArgument(int index, ParsingState expression) {
+        if (expression == null) {
+            return -1;
+        }
+
+        int currentIndex = index;
+
+        currentIndex += expression.getNumberOfParsedSymbols();
+        if (currentIndex >= parsingString.length()) {
+            return -1;
+        }
+
+        char nextChar = parsingString.charAt(currentIndex);
+        if (nextChar == ',') {
+            currentIndex++;
+        } else if (nextChar != ')') {
+            return -1;
+        }
+
+        return currentIndex;
     }
 }

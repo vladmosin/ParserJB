@@ -1,7 +1,10 @@
 package calculator;
 
 import exceptions.CalculationException;
+import exceptions.FunctionNotFoundException;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class UnaryOperationExpression implements Expression {
     @NotNull private Expression expression;
@@ -23,6 +26,16 @@ public class UnaryOperationExpression implements Expression {
         }
 
         return false;
+    }
+
+    @Override
+    public @NotNull Expression applySubstitution(@NotNull Map<String, Integer> substitution) {
+        return new UnaryOperationExpression(expression.applySubstitution(substitution));
+    }
+
+    @Override
+    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+        expression.link(functionExecutor);
     }
 
     public UnaryOperationExpression(@NotNull Expression expression) {
