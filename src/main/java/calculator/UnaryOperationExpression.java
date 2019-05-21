@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/** Stores unary minus expression */
 public class UnaryOperationExpression implements Expression {
     @NotNull private Expression expression;
 
@@ -36,9 +37,9 @@ public class UnaryOperationExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor)
+    public void link(@NotNull FunctionLinker functionLinker)
             throws FunctionNotFoundException, ArgumentNumberMismatchException {
-        expression.link(functionExecutor);
+        expression.link(functionLinker);
     }
 
     public UnaryOperationExpression(@NotNull Expression expression) {

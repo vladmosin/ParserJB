@@ -2,7 +2,6 @@ package parser;
 
 import calculator.*;
 import exceptions.*;
-import org.intellij.lang.annotations.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import static calculator.BinaryOperation.possibleOperation;
 
 public class Parser {
+    /** Uses as function return value */
     private static class Parameters {
         @NotNull ArrayList<String> arguments;
         int numberOfParsedSymbols;
@@ -20,6 +20,7 @@ public class Parser {
         }
     }
 
+    /** Uses as function return value */
     private static class Arguments {
         @NotNull ArrayList<Expression> arguments;
         int numberOfParsedSymbols;
@@ -30,13 +31,20 @@ public class Parser {
         }
     }
 
+    /** String which is parsing now*/
     private String parsingString;
-    private FunctionExecutor functionExecutor;
+
+    /** Function linker */
+    private FunctionLinker functionLinker;
+
+    /** Current line */
     private int currentLineNumber = 1;
 
+    /** Parses and links expression */
     public Expression parse(@NotNull String[] lines) throws ParsingException,
-            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException, ArgumentNumberMismatchException {
-
+            FunctionRedefinitionException, IllegalFunctionDeclarationException,
+            FunctionNotFoundException, ArgumentNumberMismatchException {
+        currentLineNumber = 1;
         var functions = new ArrayList<FunctionHolder>();
         for (int i = 0; i < lines.length - 1; i++) {
             parsingString = lines[i];
@@ -50,14 +58,22 @@ public class Parser {
             functions.add(function);
         }
 
-        functionExecutor = new FunctionExecutor(functions);
+        functionLinker = new FunctionLinker(functions);
         parsingString = lines[lines.length - 1];
 
         var expression = parseLastString();
-        for (var function : functions) {
-            function.getFunctionBody().link(functionExecutor);
+        for (int i = 0; i < lines.length - 1; i++) {
+            try {
+                functions.get(i).getFunctionBody().link(functionLinker);
+            } catch (FunctionNotFoundException e) {
+                e.changeLine(i + 1);
+                throw e;
+            } catch (ArgumentNumberMismatchException e) {
+                e.changeLine(i + 1);
+                throw e;
+            }
         }
-        expression.link(functionExecutor);
+        expression.link(functionLinker);
 
         return expression;
     }

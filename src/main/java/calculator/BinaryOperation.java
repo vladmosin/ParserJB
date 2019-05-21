@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 
 enum Operation {ADD, SUB, MUL, DIV, MOD, LESS, GREATER, EQUAL }
 
+/** Stores all parsed binary operations */
 public class BinaryOperation {
     @NotNull private static Map<Operation, BiFunction<Integer, Integer, Integer>> functionByName = Map.of(
             Operation.ADD, (left, right) -> left + right,
@@ -44,6 +45,7 @@ public class BinaryOperation {
 
     @NotNull private Operation operation;
 
+    /** Checks that operation is appropriate */
     public static boolean possibleOperation(char operation) {
         return operationByName.containsKey(operation);
     }
@@ -60,6 +62,7 @@ public class BinaryOperation {
         }
     }
 
+    /** Applies operation to left and right */
     public int apply(int left, int right) {
         return functionByName.get(operation).apply(left, right);
     }

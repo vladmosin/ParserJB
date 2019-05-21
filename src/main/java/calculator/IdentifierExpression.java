@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/** Stores identifier */
 public class IdentifierExpression implements Expression {
     @NotNull private String name;
 
@@ -52,7 +53,7 @@ public class IdentifierExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+    public void link(@NotNull FunctionLinker functionLinker) throws FunctionNotFoundException {
 
     }
 }

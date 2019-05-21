@@ -4,6 +4,8 @@ import exceptions.*;
 import org.jetbrains.annotations.NotNull;
 import parser.Parser;
 
+
+/** Main class of the program */
 public class Calculator {
     private static Parser parser = new Parser();
 

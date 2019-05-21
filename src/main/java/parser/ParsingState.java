@@ -3,6 +3,7 @@ package parser;
 import calculator.Expression;
 import org.jetbrains.annotations.NotNull;
 
+/** Uses as function return value */
 public class ParsingState {
     @NotNull private Expression parsedExpression;
     private int numberOfParsedSymbols;

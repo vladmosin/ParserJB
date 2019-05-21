@@ -10,9 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Stores function call expression */
 public class FunctionCallExpression implements Expression {
+    /** Linked function */
     private FunctionHolder function;
+
+    /** Function name */
     @NotNull private String name;
+
+    /** Arguments */
     @NotNull private ArrayList<Expression> arguments;
 
     public FunctionCallExpression(@NotNull String name, @NotNull ArrayList<Expression> arguments) {
@@ -90,11 +96,11 @@ public class FunctionCallExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor)
+    public void link(@NotNull FunctionLinker functionLinker)
             throws FunctionNotFoundException, ArgumentNumberMismatchException {
-        var function = functionExecutor.getFunction(name, arguments.size());
+        var function = functionLinker.getFunction(name, arguments.size());
         if (function == null) {
-            if (!functionExecutor.containsFunctionWithName(name)) {
+            if (!functionLinker.containsFunctionWithName(name)) {
                 throw new FunctionNotFoundException(name, -1);
             } else {
                 throw new ArgumentNumberMismatchException(name, -1);
@@ -105,7 +111,7 @@ public class FunctionCallExpression implements Expression {
 
         try {
             for (var argument : arguments) {
-                argument.link(functionExecutor);
+                argument.link(functionLinker);
             }
         } catch (FunctionNotFoundException e) {
             if (e.getLine() == -1) {
@@ -120,7 +126,8 @@ public class FunctionCallExpression implements Expression {
         }
     }
 
-    private Map<String, Integer> createSubstitution (@NotNull ArrayList<Integer> argumentValues) {
+    /** Maps function parameters with their values */
+    private Map<String, Integer> createSubstitution(@NotNull ArrayList<Integer> argumentValues) {
         var substitution = new HashMap<String, Integer>();
 
         for (int i = 0; i < argumentValues.size(); i++) {
@@ -128,15 +135,5 @@ public class FunctionCallExpression implements Expression {
         }
 
         return substitution;
-    }
-
-    private boolean containsArgument(@NotNull String argumentName) {
-        for (var argument : function.getArguments()) {
-            if (argumentName.equals(argument)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

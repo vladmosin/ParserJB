@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/** Stores number */
 public class NumberExpression implements Expression {
     private int value;
 
@@ -42,7 +43,7 @@ public class NumberExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor) throws FunctionNotFoundException {
+    public void link(@NotNull FunctionLinker functionLinker) throws FunctionNotFoundException {
 
     }
 

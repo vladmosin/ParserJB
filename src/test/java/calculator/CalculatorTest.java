@@ -141,4 +141,12 @@ public class CalculatorTest {
         assertThrows(ArgumentNumberMismatchException.class, () -> Calculator.calculate(input4));
         assertThrows(CalculationException.class, () -> Calculator.calculate(input5));
     }
+
+    @Test
+    public void testFunctionWithSameNameAndDifferentArgs() throws FunctionNotFoundException, CalculationException,
+            ParameterNotFoundException, FunctionRedefinitionException,
+            ParsingException, IllegalFunctionDeclarationException, ArgumentNumberMismatchException {
+        assertEquals(12, Calculator.calculate(new String[] {"f(x,y)={(x+y)}", "f(x)={x}", "f(12)"}));
+        assertEquals(17, Calculator.calculate(new String[] {"f(x,y)={(x+y)}", "f(x)={x}", "f(12,5)"}));
+    }
 }

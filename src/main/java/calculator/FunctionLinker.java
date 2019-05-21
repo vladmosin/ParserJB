@@ -7,11 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FunctionExecutor {
+/** Needs for function linking */
+public class FunctionLinker {
     /** Maps function name and number of arguments to function holder */
     @NotNull private Map<String, Map<Integer, FunctionHolder>> functionByNameAndArgs = new HashMap<>();
 
-    public FunctionExecutor(@NotNull List<FunctionHolder> functions) throws FunctionRedefinitionException {
+    public FunctionLinker(@NotNull List<FunctionHolder> functions) throws FunctionRedefinitionException {
         for (var function : functions) {
             var functionName = function.getName();
             var numberOfArgs = function.getArguments().size();
@@ -25,11 +26,15 @@ public class FunctionExecutor {
                     functionsWithSameName.put(numberOfArgs, function);
                 }
             } else {
-                functionByNameAndArgs.put(functionName, Map.of(numberOfArgs, function));
+                var functionsWithSuchName = new HashMap<Integer, FunctionHolder>();
+                functionsWithSuchName.put(numberOfArgs, function);
+                functionByNameAndArgs.put(functionName, functionsWithSuchName);
             }
         }
     }
 
+
+    /** Returns function by number of arguments and name */
     public FunctionHolder getFunction(@NotNull String name, int numberOfArgs) {
         if (functionByNameAndArgs.containsKey(name)) {
             var functionsWithGivenName = functionByNameAndArgs.get(name);
@@ -39,6 +44,7 @@ public class FunctionExecutor {
         }
     }
 
+    /** Checks that exists function with given name */
     public boolean containsFunctionWithName(@NotNull String name) {
         return functionByNameAndArgs.containsKey(name);
     }

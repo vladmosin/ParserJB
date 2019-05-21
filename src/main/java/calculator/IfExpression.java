@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/** Stores if expression */
 public class IfExpression implements Expression {
     @NotNull private final Expression caseExpression;
     @NotNull private final Expression ifTrueExpression;
@@ -58,11 +59,11 @@ public class IfExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor)
+    public void link(@NotNull FunctionLinker functionLinker)
             throws FunctionNotFoundException, ArgumentNumberMismatchException {
-        caseExpression.link(functionExecutor);
-        ifTrueExpression.link(functionExecutor);
-        ifFalseExpression.link(functionExecutor);
+        caseExpression.link(functionLinker);
+        ifTrueExpression.link(functionLinker);
+        ifFalseExpression.link(functionLinker);
     }
 
     public IfExpression(@NotNull Expression caseExpression, @NotNull Expression ifTrueExpression,

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+/** Stores expression with binary operation */
 public class BinaryOperationExpression implements Expression {
     @NotNull private final BinaryOperation operation;
     @NotNull private final Expression left;
@@ -52,10 +53,10 @@ public class BinaryOperationExpression implements Expression {
     }
 
     @Override
-    public void link(@NotNull FunctionExecutor functionExecutor)
+    public void link(@NotNull FunctionLinker functionLinker)
             throws FunctionNotFoundException, ArgumentNumberMismatchException {
-        left.link(functionExecutor);
-        right.link(functionExecutor);
+        left.link(functionLinker);
+        right.link(functionLinker);
     }
 
     public BinaryOperationExpression(@NotNull BinaryOperation operation,
