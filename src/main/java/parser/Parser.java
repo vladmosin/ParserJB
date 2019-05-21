@@ -1,10 +1,7 @@
 package parser;
 
 import calculator.*;
-import exceptions.FunctionNotFoundException;
-import exceptions.FunctionRedefinitionException;
-import exceptions.IllegalFunctionDeclarationException;
-import exceptions.ParsingException;
+import exceptions.*;
 import org.intellij.lang.annotations.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +35,8 @@ public class Parser {
     private int currentLineNumber = 1;
 
     public Expression parse(@NotNull String[] lines) throws ParsingException,
-            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException {
+            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException, ArgumentNumberMismatchException {
+
         var functions = new ArrayList<FunctionHolder>();
         for (int i = 0; i < lines.length - 1; i++) {
             parsingString = lines[i];
@@ -65,7 +63,7 @@ public class Parser {
     }
 
     public Expression parse(@NotNull String stringToParse) throws ParsingException,
-            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException {
+            FunctionRedefinitionException, IllegalFunctionDeclarationException, FunctionNotFoundException, ArgumentNumberMismatchException {
         return parse(stringToParse.split("\n"));
     }
 

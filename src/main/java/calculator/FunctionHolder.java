@@ -22,7 +22,7 @@ public class FunctionHolder {
         this.line = line;
 
         if (!checkArgumentList()) {
-            throw new IllegalFunctionDeclarationException("Function " + name + " has arguments with same name");
+            throw new IllegalFunctionDeclarationException(name, line);
         }
     }
 

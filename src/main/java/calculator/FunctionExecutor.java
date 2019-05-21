@@ -20,7 +20,7 @@ public class FunctionExecutor {
                 var functionsWithSameName = functionByNameAndArgs.get(functionName);
 
                 if (functionsWithSameName.containsKey(numberOfArgs)) {
-                    throw new FunctionRedefinitionException("Function " + function.getName() + " was redefined");
+                    throw new FunctionRedefinitionException(function.getName(), function.getArguments().size());
                 } else {
                     functionsWithSameName.put(numberOfArgs, function);
                 }
